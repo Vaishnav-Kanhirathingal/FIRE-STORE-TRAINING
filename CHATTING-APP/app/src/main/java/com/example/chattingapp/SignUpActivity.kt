@@ -64,12 +64,12 @@ class SignUpActivity : AppCompatActivity() {
                         this,
                         if (it.isSuccessful) {
                             val user = User(
-                                profilePicture = null,
                                 userName = accountName,
                                 mail = accountEmail,
                                 password = accountPassword,
-                                userId = it.result.user?.uid,
-                                lastMessage = null
+                                userId = it.result.user!!.uid,
+                                lastMessage = null,
+                                profilePicture = null
                             )
                             database.reference.child("user_name").child(user.userId!!)
                                 .setValue(user)
@@ -97,15 +97,26 @@ class SignUpActivity : AppCompatActivity() {
         startActivityForResult(googleSignInClient.signInIntent, REQUEST_CODE)
     }
 
-    private fun authenticationAccount(id: String?) {
+    private fun authenticateGoogleAccount(id: String?) {
         val credential = GoogleAuthProvider.getCredential(id, null)
         auth.signInWithCredential(credential).addOnCompleteListener {
-            if (it.isSuccessful) {
-                Log.d(TAG, "signInWithCredential:success")
-                val user = auth.currentUser
-            } else {
-                Log.w(TAG, "signInWithCredential:failure", it.exception)
-            }
+            val firebaseUser = auth.currentUser
+            val user = User(
+                userName = firebaseUser?.displayName!!,
+                id = firebaseUser.uid,
+                profilePicture = firebaseUser.photoUrl.toString()
+            )
+            database.reference.child("user_name").child(user.userId).setValue(user)
+            Toast.makeText(
+                this,
+                if (it.isSuccessful) {
+                    startActivity(Intent(this, HomeActivity::class.java))
+                    "signInWithCredential:success"
+                } else {
+                    Log.d(TAG, "error = ${it.exception}")
+                    "signInWithCredential:failure"
+                }, Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -115,7 +126,7 @@ class SignUpActivity : AppCompatActivity() {
             try {
                 val account = GoogleSignIn.getSignedInAccountFromIntent(data).result
                 Log.d(TAG, "${account.id}")
-                authenticationAccount(account.idToken)
+                authenticateGoogleAccount(account.idToken)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
