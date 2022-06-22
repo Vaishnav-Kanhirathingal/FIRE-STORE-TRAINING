@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingHorizontal="30dp"
-    tools:context=".MainActivity">
+    tools:context=".SignUpActivity">
 
     <ImageView
         android:id="@+id/app_logo"
@@ -40,12 +40,13 @@
         android:hint="Account Password"
         app:layout_constraintTop_toBottomOf="@id/account_email" />
 
-    <TextView
+    <Button
         android:id="@+id/already_have_account"
-        android:layout_width="match_parent"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="already have an account?"
-        android:textAlignment="textEnd"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/account_password" />
 
     <Button
